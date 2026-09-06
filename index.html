@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>「また素麺？」って、言わせない！</title>
+<meta name="description" content="「このまえ何食べた？」を記録するアプリ">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1b3a4b">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+  :root{
+    --color-navy:#1b3a4b;
+    --color-navy-light:#2c5065;
+    --color-orange:#e8702a;
+    --color-orange-light:#fbe4d3;
+    --color-bg:#f7f7f5;
+    --color-card:#ffffff;
+    --color-text:#222222;
+    --color-text-sub:#5a5a5a;
+    --color-border:#d8d8d4;
+    --color-border-strong:#1b3a4b;
+    --color-danger:#b3261e;
+    --radius:14px;
+    --tap-min:44px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--color-bg);
+    color:var(--color-text);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    line-height:1.6;
+    -webkit-text-size-adjust:100%;
+  }
+  .app-container{
+    max-width:480px;
+    margin:0 auto;
+    padding:0 0 2rem 0;
+    min-height:100vh;
+  }
+  header.app-header{
+    background:var(--color-navy);
+    color:#fff;
+    padding:1.25rem 1rem 1.1rem 1rem;
+    border-bottom:4px solid var(--color-orange);
+  }
+  header.app-header h1{
+    margin:0 0 .35rem 0;
+    font-size:1.28rem;
+    font-weight:800;
+    letter-spacing:.02em;
+  }
+  header.app-header p{
+    margin:0;
+    font-size:.82rem;
+    color:#cfe0e8;
+  }
+  main{padding:0 1rem;}
+  section{margin-top:1rem;}
+  h2.section-title{
+    font-size:.95rem;
+    font-weight:700;
+    color:var(--color-navy);
+    margin:0 0 .5rem 0;
+    padding-left:.1rem;
+    border-left:5px solid var(--color-orange);
+    padding-left:.5rem;
+  }
+
+  /* ---- fact card ---- */
+  .fact-card{
+    background:var(--color-card);
+    border:2px solid var(--color-border-strong);
+    border-radius:var(--radius);
+    padding:.9rem 1rem;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+  }
+  .fact-card.state-warn{ border-color:var(--color-orange); background:var(--color-orange-light); }
+  .fact-card.state-neutral{ border-color:var(--color-border-strong); }
+  .fact-card.state-empty{ border-color:var(--color-border); background:#fbfbfa; }
+  .fact-card .fact-label{
+    display:inline-flex;
+    align-items:center;
+    gap:.3rem;
+    font-size:.72rem;
+    font-weight:700;
+    color:var(--color-navy);
+    background:#e7edf0;
+    border-radius:999px;
+    padding:.15rem .6rem;
+    margin-bottom:.5rem;
+  }
+  .fact-card.state-warn .fact-label{ color:#8a4413; background:#fbe4d3; }
+  .fact-card .fact-main{
+    font-size:1rem;
+    font-weight:600;
+    margin:0;
+  }
+  .fact-card .fact-main strong{ color:var(--color-orange); font-size:1.08em; }
+  .fact-card .fact-sub{
+    margin:.35rem 0 0 0;
+    font-size:.82rem;
+    color:var(--color-text-sub);
+  }
+
+  /* ---- form ---- */
+  .form-card{
+    background:var(--color-card);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius);
+    padding:1rem;
+  }
+  .field{ margin-bottom:.95rem; }
+  .field:last-child{ margin-bottom:0; }
+  label.field-label{
+    display:block;
+    font-size:.78rem;
+    font-weight:700;
+    color:var(--color-navy);
+    margin-bottom:.35rem;
+  }
+  .mode-toggle{
+    display:flex;
+    gap:.5rem;
+  }
+  .mode-btn{
+    flex:1;
+    min-height:var(--tap-min);
+    border:2px solid var(--color-border);
+    background:#fff;
+    border-radius:10px;
+    font-size:.95rem;
+    font-weight:700;
+    color:var(--color-text-sub);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.3rem;
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .mode-btn[aria-pressed="true"]{
+    border-color:var(--color-navy);
+    background:var(--color-navy);
+    color:#fff;
+  }
+  .mode-btn:active{ transform:scale(.98); }
+
+  input[type="date"],
+  select,
+  input[type="text"]{
+    width:100%;
+    min-height:var(--tap-min);
+    border:2px solid var(--color-border);
+    border-radius:10px;
+    padding:.4rem .7rem;
+    font-size:.95rem;
+    background:#fff;
+    color:var(--color-text);
+    font-family:inherit;
+  }
+  input[type="date"]:focus,
+  select:focus,
+  input[type="text"]:focus{
+    outline:none;
+    border-color:var(--color-navy);
+  }
+  .helper-text{
+    font-size:.72rem;
+    color:var(--color-text-sub);
+    margin:.3rem 0 0 0;
+  }
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+    min-height:var(--tap-min);
+    padding:.2rem 0;
+  }
+  .checkbox-row input[type="checkbox"]{
+    width:24px;
+    height:24px;
+    flex-shrink:0;
+    accent-color:var(--color-orange);
+  }
+  .checkbox-row label{
+    font-size:.9rem;
+    font-weight:600;
+    color:var(--color-text);
+  }
+
+  .photo-area{
+    display:flex;
+    flex-direction:column;
+    gap:.55rem;
+  }
+  .photo-buttons{ display:flex; gap:.5rem; flex-wrap:wrap; }
+  .photo-btn{
+    flex:1;
+    min-width:120px;
+    min-height:var(--tap-min);
+    border:2px dashed var(--color-navy);
+    background:#eef3f5;
+    border-radius:10px;
+    color:var(--color-navy);
+    font-weight:700;
+    font-size:.85rem;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.3rem;
+  }
+  .photo-btn:active{ background:#dfe8eb; }
+  .photo-preview-wrap{
+    position:relative;
+    display:none;
+    max-width:220px;
+  }
+  .photo-preview-wrap.show{ display:block; }
+  .photo-preview-wrap img{
+    width:100%;
+    border-radius:10px;
+    border:2px solid var(--color-border);
+    display:block;
+  }
+  .photo-remove-btn{
+    position:absolute;
+    top:-8px;
+    right:-8px;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    border:2px solid #fff;
+    background:var(--color-danger);
+    color:#fff;
+    font-weight:800;
+    font-size:.95rem;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    line-height:1;
+  }
+  .photo-status{ font-size:.72rem; color:var(--color-text-sub); }
+
+  .error-text{
+    font-size:.8rem;
+    color:var(--color-danger);
+    font-weight:700;
+    margin-top:.4rem;
+    display:none;
+  }
+  .error-text.show{ display:block; }
+
+  .save-btn{
+    width:100%;
+    min-height:52px;
+    background:var(--color-orange);
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    font-size:1.05rem;
+    font-weight:800;
+    letter-spacing:.03em;
+    cursor:pointer;
+    margin-top:1.1rem;
+    box-shadow:0 3px 0 #b95519;
+  }
+  .save-btn:active{
+    transform:translateY(2px);
+    box-shadow:0 1px 0 #b95519;
+  }
+  .save-toast{
+    text-align:center;
+    font-size:.85rem;
+    font-weight:700;
+    color:#1b6b2b;
+    background:#e3f4e6;
+    border:1px solid #b7ddbd;
+    border-radius:10px;
+    padding:.5rem;
+    margin-top:.7rem;
+    display:none;
+  }
+  .save-toast.show{ display:block; }
+
+  /* ---- history ---- */
+  #historyEmpty{
+    text-align:center;
+    color:var(--color-text-sub);
+    font-size:.85rem;
+    padding:1.5rem 0;
+    border:1px dashed var(--color-border);
+    border-radius:var(--radius);
+    background:#fff;
+  }
+  .history-list{
+    display:flex;
+    flex-direction:column;
+    gap:.7rem;
+  }
+  .history-card{
+    display:flex;
+    gap:.7rem;
+    background:var(--color-card);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius);
+    padding:.7rem;
+    position:relative;
+  }
+  .history-thumb{
+    width:64px;
+    height:64px;
+    border-radius:10px;
+    flex-shrink:0;
+    background:#eef1f0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.6rem;
+    overflow:hidden;
+    border:1px solid var(--color-border);
+  }
+  .history-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .history-body{ flex:1; min-width:0; }
+  .history-top-row{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    flex-wrap:wrap;
+    margin-bottom:.15rem;
+  }
+  .history-date{ font-size:.78rem; color:var(--color-text-sub); font-weight:700; }
+  .history-meal-badge{
+    font-size:.72rem;
+    font-weight:700;
+    padding:.1rem .5rem;
+    border-radius:999px;
+    border:1.5px solid var(--color-navy);
+    color:var(--color-navy);
+    display:inline-flex;
+    align-items:center;
+    gap:.2rem;
+  }
+  .history-menu{
+    font-size:1rem;
+    font-weight:800;
+    color:var(--color-text);
+    margin:.1rem 0;
+    word-break:break-word;
+  }
+  .history-taste{
+    font-size:.8rem;
+    color:var(--color-text-sub);
+    word-break:break-word;
+  }
+  .history-arrange-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.2rem;
+    font-size:.72rem;
+    font-weight:700;
+    color:#8a4413;
+    background:var(--color-orange-light);
+    border:1.5px solid var(--color-orange);
+    border-radius:999px;
+    padding:.05rem .5rem;
+    margin-top:.3rem;
+  }
+  .history-delete-btn{
+    width:var(--tap-min);
+    height:var(--tap-min);
+    flex-shrink:0;
+    border:2px solid var(--color-border);
+    background:#fff;
+    border-radius:10px;
+    color:var(--color-danger);
+    font-size:1.15rem;
+    cursor:pointer;
+    align-self:center;
+  }
+  .history-delete-btn:active{ background:#fbeceb; }
+
+  footer{
+    text-align:center;
+    font-size:.75rem;
+    color:#888;
+    margin-top:3rem;
+    padding:1rem .5rem;
+    line-height:1.5;
+  }
+  footer a{ color:#666; }
+
+  .visually-hidden{
+    position:absolute;
+    width:1px;height:1px;
+    padding:0;margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+  }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="app-header">
+    <h1>「また素麺？」って、言わせない！</h1>
+    <p>「このまえ何食べた？」を記録するアプリ</p>
+  </header>
+
+  <main>
+    <section aria-label="実績判定">
+      <h2 class="section-title">📊 実績データ</h2>
+      <div id="factCard" class="fact-card state-empty" aria-live="polite">
+        <span class="fact-label">📅 実績</span>
+        <p class="fact-main" id="factMain">メニュー名を入力または選択すると、実績が表示されます。</p>
+        <p class="fact-sub" id="factSub" style="display:none;"></p>
+      </div>
+    </section>
+
+    <section aria-label="入力フォーム">
+      <h2 class="section-title">✏️ 記録する</h2>
+      <div class="form-card">
+
+        <div class="field">
+          <span class="field-label" id="modeLabel">食事モード</span>
+          <div class="mode-toggle" role="group" aria-labelledby="modeLabel">
+            <button type="button" class="mode-btn" id="btnLunch" aria-pressed="true">☀️ 昼食モード</button>
+            <button type="button" class="mode-btn" id="btnDinner" aria-pressed="false">🌙 夕食モード</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="dateInput">📅 日付</label>
+          <input type="date" id="dateInput">
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="menuSelect">🍽️ メニュー名（登録済みから選択）</label>
+          <select id="menuSelect">
+            <option value="">-- 記録済みのメニューから選択 --</option>
+          </select>
+          <p class="helper-text">新しいメニューの場合は、下に直接入力してください（入力すると選択欄より優先されます）。</p>
+          <input type="text" id="newMenuInput" placeholder="例：素麺、カレー、麻婆豆腐 など" style="margin-top:.5rem;">
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="tasteInput">💡 味付け・アレンジ内容</label>
+          <input type="text" id="tasteInput" placeholder="例：ツナトマト、めんつゆ、生姜風味 など">
+          <div class="checkbox-row" style="margin-top:.5rem;">
+            <input type="checkbox" id="arrangeCheckbox">
+            <label for="arrangeCheckbox">アレンジ・味変あり</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field-label" id="photoLabel">🖼️ 写真</span>
+          <div class="photo-area" aria-labelledby="photoLabel">
+            <div class="photo-buttons">
+              <button type="button" class="photo-btn" id="btnCamera">📷 カメラで撮影</button>
+              <button type="button" class="photo-btn" id="btnGallery">🖼️ 画像を選択</button>
+            </div>
+            <input type="file" accept="image/*" capture="environment" id="cameraInput" class="visually-hidden">
+            <input type="file" accept="image/*" id="galleryInput" class="visually-hidden">
+            <div class="photo-preview-wrap" id="photoPreviewWrap">
+              <img id="photoPreviewImg" alt="添付した写真のプレビュー">
+              <button type="button" class="photo-remove-btn" id="btnRemovePhoto" aria-label="写真を削除">×</button>
+            </div>
+            <p class="photo-status" id="photoStatus"></p>
+          </div>
+        </div>
+
+        <p class="error-text" id="errorText" role="alert"></p>
+        <button type="button" class="save-btn" id="btnSave">この内容で記録する</button>
+        <p class="save-toast" id="saveToast">✅ 記録しました</p>
+      </div>
+    </section>
+
+    <section aria-label="過去の記録一覧">
+      <h2 class="section-title">🗂️ 過去の記録一覧</h2>
+      <div id="historyEmpty">まだ記録がありません。</div>
+      <div class="history-list" id="historyList" style="display:none;"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p style="margin-bottom: 0.5rem;">【ご利用について】</p>
+    <p style="margin-bottom: 0.5rem;">本アプリは、使用される方の毎日を楽しく、快適にする目的で開発されたWEBアプリケーションです。</p>
+    <p style="margin-bottom: 0.5rem;">動作確認には万全を期しておりますが、端末環境やブラウザの仕様変更等に伴うデータ損失やトラブルについて開発者は一切の責任を負いかねます。</p>
+    <p>ご意見・不具合のご報告は X（<a href="https://x.com/lblt_labo" target="_blank" rel="noopener" style="color: #666; text-decoration: underline;">@lblt_labo</a>）までお願いいたします。</p>
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  'use strict';
+
+  /* ============ 定数・状態 ============ */
+  var STORAGE_KEY = 'mata_somen_records_v1';
+  var records = [];
+  var currentMealMode = 'lunch'; // 'lunch' | 'dinner'
+  var currentPhotoData = null;
+
+  /* ============ ユーティリティ ============ */
+  function $(id) { try { return document.getElementById(id); } catch (e) { return null; } }
+
+  function escapeHtml(str) {
+    try {
+      return String(str).replace(/[&<>"']/g, function (ch) {
+        var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return map[ch] || ch;
+      });
+    } catch (e) { return ''; }
+  }
+
+  function todayStr() {
+    try {
+      var d = new Date();
+      var y = d.getFullYear();
+      var m = String(d.getMonth() + 1).padStart(2, '0');
+      var day = String(d.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + day;
+    } catch (e) { return '2026-01-01'; }
+  }
+
+  function parseDateLocal(str) {
+    try {
+      var parts = String(str).split('-');
+      var y = parseInt(parts[0], 10);
+      var m = parseInt(parts[1], 10) - 1;
+      var d = parseInt(parts[2], 10);
+      return new Date(y, m, d);
+    } catch (e) { return new Date(); }
+  }
+
+  function formatDateJP(str) {
+    try {
+      var parts = String(str).split('-');
+      return parts[0] + '/' + parts[1] + '/' + parts[2];
+    } catch (e) { return str; }
+  }
+
+  function diffDaysBetween(dateStrLater, dateStrEarlier) {
+    try {
+      var a = parseDateLocal(dateStrLater);
+      var b = parseDateLocal(dateStrEarlier);
+      var msPerDay = 1000 * 60 * 60 * 24;
+      return Math.round((a.getTime() - b.getTime()) / msPerDay);
+    } catch (e) { return 999; }
+  }
+
+  function mealLabel(mealType) {
+    return mealType === 'dinner' ? '🌙 夕食' : '☀️ 昼食';
+  }
+
+  function vibrate(ms) {
+    try {
+      if (navigator && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(ms);
+      }
+    } catch (e) { /* 無視 */ }
+  }
+
+  /* ============ データ永続化 ============ */
+  function loadRecords() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed;
+    } catch (e) {
+      console.warn('記録の読み込みに失敗しました。', e);
+      return [];
+    }
+  }
+
+  function saveRecords() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      return true;
+    } catch (e) {
+      console.warn('記録の保存に失敗しました（容量不足の可能性があります）。', e);
+      showError('保存に失敗しました。端末の空き容量や写真の枚数をご確認ください。');
+      return false;
+    }
+  }
+
+  /* ============ フォーム要素取得 ============ */
+  var btnLunch = $('btnLunch');
+  var btnDinner = $('btnDinner');
+  var dateInput = $('dateInput');
+  var menuSelect = $('menuSelect');
+  var newMenuInput = $('newMenuInput');
+  var tasteInput = $('tasteInput');
+  var arrangeCheckbox = $('arrangeCheckbox');
+  var btnCamera = $('btnCamera');
+  var btnGallery = $('btnGallery');
+  var cameraInput = $('cameraInput');
+  var galleryInput = $('galleryInput');
+  var photoPreviewWrap = $('photoPreviewWrap');
+  var photoPreviewImg = $('photoPreviewImg');
+  var btnRemovePhoto = $('btnRemovePhoto');
+  var photoStatus = $('photoStatus');
+  var errorText = $('errorText');
+  var btnSave = $('btnSave');
+  var saveToast = $('saveToast');
+  var factCard = $('factCard');
+  var factMain = $('factMain');
+  var factSub = $('factSub');
+  var historyEmpty = $('historyEmpty');
+  var historyList = $('historyList');
+
+  function showError(msg) {
+    try {
+      if (!errorText) return;
+      errorText.textContent = msg;
+      errorText.classList.add('show');
+    } catch (e) { /* 無視 */ }
+  }
+  function clearError() {
+    try {
+      if (!errorText) return;
+      errorText.textContent = '';
+      errorText.classList.remove('show');
+    } catch (e) { /* 無視 */ }
+  }
+
+  /* ============ モード切り替え ============ */
+  function setMealMode(mode) {
+    try {
+      currentMealMode = (mode === 'dinner') ? 'dinner' : 'lunch';
+      if (btnLunch) btnLunch.setAttribute('aria-pressed', currentMealMode === 'lunch' ? 'true' : 'false');
+      if (btnDinner) btnDinner.setAttribute('aria-pressed', currentMealMode === 'dinner' ? 'true' : 'false');
+      updateFactCard();
+    } catch (e) { /* 無視 */ }
+  }
+  if (btnLunch) btnLunch.addEventListener('click', function () { setMealMode('lunch'); });
+  if (btnDinner) btnDinner.addEventListener('click', function () { setMealMode('dinner'); });
+
+  /* ============ 日付初期化 ============ */
+  try {
+    if (dateInput) dateInput.value = todayStr();
+  } catch (e) { /* 無視 */ }
+  if (dateInput) dateInput.addEventListener('change', function () { updateFactCard(); });
+
+  /* ============ メニュー名の取得と選択・入力の排他制御 ============ */
+  function getCurrentMenuName() {
+    try {
+      var newVal = newMenuInput ? newMenuInput.value.trim() : '';
+      if (newVal) return newVal;
+      var selVal = menuSelect ? menuSelect.value : '';
+      return selVal ? selVal.trim() : '';
+    } catch (e) { return ''; }
+  }
+
+  function getUniqueMenuNames() {
+    try {
+      var map = {}; // name -> most recent savedAt
+      records.forEach(function (r) {
+        if (!r || !r.menu) return;
+        var key = r.menu;
+        var t = r.savedAt || 0;
+        if (!map[key] || map[key] < t) map[key] = t;
+      });
+      return Object.keys(map).sort(function (a, b) {
+        return (map[b] || 0) - (map[a] || 0);
+      });
+    } catch (e) { return []; }
+  }
+
+  function renderMenuSelect() {
+    try {
+      if (!menuSelect) return;
+      var currentVal = menuSelect.value;
+      var names = getUniqueMenuNames();
+      var html = '<option value="">-- 記録済みのメニューから選択 --</option>';
+      names.forEach(function (name) {
+        html += '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
+      });
+      menuSelect.innerHTML = html;
+      if (names.indexOf(currentVal) !== -1) {
+        menuSelect.value = currentVal;
+      }
+    } catch (e) { /* 無視 */ }
+  }
+
+  if (menuSelect) {
+    menuSelect.addEventListener('change', function () {
+      try {
+        if (menuSelect.value && newMenuInput) newMenuInput.value = '';
+      } catch (e) { /* 無視 */ }
+      updateFactCard();
+    });
+  }
+  if (newMenuInput) {
+    newMenuInput.addEventListener('input', function () {
+      try {
+        if (newMenuInput.value.trim() && menuSelect) menuSelect.value = '';
+      } catch (e) { /* 無視 */ }
+      updateFactCard();
+    });
+  }
+  if (tasteInput) tasteInput.addEventListener('input', function () { updateFactCard(); });
+  if (arrangeCheckbox) arrangeCheckbox.addEventListener('change', function () { updateFactCard(); });
+
+  /* ============ 実績判定（ファクトカード） ============ */
+  function findLastRecordForMenu(menuName, referenceDate) {
+    try {
+      var normalized = menuName.trim().toLowerCase();
+      var candidates = records.filter(function (r) {
+        return r && r.menu && r.menu.trim().toLowerCase() === normalized && r.date <= referenceDate;
+      });
+      if (candidates.length === 0) return null;
+      candidates.sort(function (a, b) {
+        if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+        return (b.savedAt || 0) - (a.savedAt || 0);
+      });
+      return candidates[0];
+    } catch (e) { return null; }
+  }
+
+  function updateFactCard() {
+    try {
+      if (!factCard || !factMain || !factSub) return;
+      var menuName = getCurrentMenuName();
+      var refDate = (dateInput && dateInput.value) ? dateInput.value : todayStr();
+
+      factCard.classList.remove('state-warn', 'state-neutral', 'state-empty');
+
+      if (!menuName) {
+        factCard.classList.add('state-empty');
+        factMain.innerHTML = 'メニュー名を入力または選択すると、実績が表示されます。';
+        factSub.style.display = 'none';
+        factSub.textContent = '';
+        return;
+      }
+
+      var last = findLastRecordForMenu(menuName, refDate);
+
+      if (!last) {
+        factCard.classList.add('state-neutral');
+        factMain.innerHTML = '［' + escapeHtml(menuName) + '］の過去の記録はありません（初記録）。';
+        factSub.style.display = 'none';
+        factSub.textContent = '';
+        return;
+      }
+
+      var diff = diffDaysBetween(refDate, last.date);
+      var dateJP = formatDateJP(last.date);
+      var mealJP = mealLabel(last.mealType);
+      var diffLabel;
+      if (diff <= 0) diffLabel = '本日（0日前）';
+      else if (diff === 1) diffLabel = '昨日（1日前）';
+      else diffLabel = diff + '日前';
+
+      if (diff >= 3) {
+        factCard.classList.add('state-neutral');
+        factMain.innerHTML = '前回の［' + escapeHtml(menuName) + '］は <strong>' + diffLabel + '</strong>（' + dateJP + ' ' + mealJP + '）です。';
+        factSub.style.display = 'none';
+        factSub.textContent = '';
+      } else {
+        var arrangeNow = arrangeCheckbox ? arrangeCheckbox.checked : false;
+        if (arrangeNow) {
+          var tasteNow = tasteInput ? tasteInput.value.trim() : '';
+          var tasteLabel = tasteNow ? tasteNow : 'アレンジあり';
+          factCard.classList.add('state-warn');
+          factMain.innerHTML = '前回の［' + escapeHtml(menuName) + '］は <strong>' + diffLabel + '</strong> ですが、今回は <strong>味付け・アレンジあり（' + escapeHtml(tasteLabel) + '）</strong>として記録されます。';
+          factSub.style.display = 'none';
+          factSub.textContent = '';
+        } else {
+          factCard.classList.add('state-warn');
+          factMain.innerHTML = '前回の［' + escapeHtml(menuName) + '］は <strong>' + diffLabel + '</strong> です。';
+          factSub.style.display = 'block';
+          factSub.textContent = '直近の記録があります。';
+        }
+      }
+    } catch (e) {
+      console.warn('実績判定の表示に失敗しました。', e);
+    }
+  }
+
+  /* ============ 写真の圧縮処理 ============ */
+  function handlePhotoFile(file) {
+    try {
+      if (!file) return;
+      if (photoStatus) photoStatus.textContent = '画像を処理しています…';
+      var reader = new FileReader();
+      reader.onerror = function () {
+        if (photoStatus) photoStatus.textContent = '画像の読み込みに失敗しました。';
+      };
+      reader.onload = function () {
+        try {
+          var img = new Image();
+          img.onerror = function () {
+            if (photoStatus) photoStatus.textContent = '画像の処理に失敗しました。';
+          };
+          img.onload = function () {
+            try {
+              var maxWidth = 600;
+              var scale = img.width > maxWidth ? (maxWidth / img.width) : 1;
+              var newWidth = Math.max(1, Math.round(img.width * scale));
+              var newHeight = Math.max(1, Math.round(img.height * scale));
+              var canvas = document.createElement('canvas');
+              canvas.width = newWidth;
+              canvas.height = newHeight;
+              var ctx = canvas.getContext('2d');
+              if (!ctx) {
+                if (photoStatus) photoStatus.textContent = '画像の処理に失敗しました。';
+                return;
+              }
+              ctx.drawImage(img, 0, 0, newWidth, newHeight);
+              var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+              currentPhotoData = dataUrl;
+              if (photoPreviewImg) photoPreviewImg.src = dataUrl;
+              if (photoPreviewWrap) photoPreviewWrap.classList.add('show');
+              if (photoStatus) photoStatus.textContent = '写真を圧縮して添付しました（' + newWidth + '×' + newHeight + 'px）。';
+            } catch (e2) {
+              console.warn('画像の圧縮に失敗しました。', e2);
+              if (photoStatus) photoStatus.textContent = '画像の処理に失敗しました。写真なしで記録できます。';
+              currentPhotoData = null;
+            }
+          };
+          img.src = reader.result;
+        } catch (e3) {
+          console.warn('画像の読み込みに失敗しました。', e3);
+          if (photoStatus) photoStatus.textContent = '画像の処理に失敗しました。';
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (e) {
+      console.warn('写真処理でエラーが発生しました。', e);
+      if (photoStatus) photoStatus.textContent = '画像の処理に失敗しました。写真なしで記録できます。';
+    }
+  }
+
+  if (btnCamera && cameraInput) {
+    btnCamera.addEventListener('click', function () { try { cameraInput.click(); } catch (e) {} });
+    cameraInput.addEventListener('change', function (e) {
+      try {
+        var file = e.target.files && e.target.files[0];
+        if (file) handlePhotoFile(file);
+      } catch (err) { /* 無視 */ }
+    });
+  }
+  if (btnGallery && galleryInput) {
+    btnGallery.addEventListener('click', function () { try { galleryInput.click(); } catch (e) {} });
+    galleryInput.addEventListener('change', function (e) {
+      try {
+        var file = e.target.files && e.target.files[0];
+        if (file) handlePhotoFile(file);
+      } catch (err) { /* 無視 */ }
+    });
+  }
+  if (btnRemovePhoto) {
+    btnRemovePhoto.addEventListener('click', function () {
+      try {
+        currentPhotoData = null;
+        if (photoPreviewWrap) photoPreviewWrap.classList.remove('show');
+        if (photoPreviewImg) photoPreviewImg.src = '';
+        if (photoStatus) photoStatus.textContent = '写真を削除しました。';
+        if (cameraInput) cameraInput.value = '';
+        if (galleryInput) galleryInput.value = '';
+      } catch (e) { /* 無視 */ }
+    });
+  }
+
+  /* ============ 履歴一覧の描画 ============ */
+  function renderHistory() {
+    try {
+      if (!historyList || !historyEmpty) return;
+      var sorted = records.slice().sort(function (a, b) {
+        if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+        return (b.savedAt || 0) - (a.savedAt || 0);
+      });
+
+      if (sorted.length === 0) {
+        historyEmpty.style.display = 'block';
+        historyList.style.display = 'none';
+        historyList.innerHTML = '';
+        return;
+      }
+
+      historyEmpty.style.display = 'none';
+      historyList.style.display = 'flex';
+
+      var html = '';
+      sorted.forEach(function (r) {
+        var thumb = r.photo
+          ? '<img src="' + r.photo + '" alt="' + escapeHtml(r.menu) + 'の写真">'
+          : '🍽️';
+        var arrangeBadge = r.arrange
+          ? '<div class="history-arrange-badge">💡 アレンジあり</div>'
+          : '';
+        var tasteHtml = r.taste
+          ? '<div class="history-taste">味付け: ' + escapeHtml(r.taste) + '</div>'
+          : '';
+        html += ''
+          + '<div class="history-card">'
+          + '  <div class="history-thumb">' + thumb + '</div>'
+          + '  <div class="history-body">'
+          + '    <div class="history-top-row">'
+          + '      <span class="history-date">📅 ' + escapeHtml(formatDateJP(r.date)) + '</span>'
+          + '      <span class="history-meal-badge">' + mealLabel(r.mealType) + '</span>'
+          + '    </div>'
+          + '    <div class="history-menu">' + escapeHtml(r.menu) + '</div>'
+          + tasteHtml
+          + arrangeBadge
+          + '  </div>'
+          + '  <button type="button" class="history-delete-btn" data-id="' + escapeHtml(r.id) + '" aria-label="この記録を削除">🗑</button>'
+          + '</div>';
+      });
+      historyList.innerHTML = html;
+
+      var deleteButtons = historyList.querySelectorAll('.history-delete-btn');
+      deleteButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          try {
+            var id = btn.getAttribute('data-id');
+            var target = records.find(function (r) { return String(r.id) === String(id); });
+            var confirmMsg = target
+              ? ('「' + target.menu + '」（' + formatDateJP(target.date) + ' ' + mealLabel(target.mealType) + '）の記録を削除しますか？')
+              : 'この記録を削除しますか？';
+            if (window.confirm(confirmMsg)) {
+              records = records.filter(function (r) { return String(r.id) !== String(id); });
+              saveRecords();
+              renderMenuSelect();
+              renderHistory();
+              updateFactCard();
+              vibrate(15);
+            }
+          } catch (e) {
+            console.warn('削除処理でエラーが発生しました。', e);
+          }
+        });
+      });
+    } catch (e) {
+      console.warn('履歴の描画に失敗しました。', e);
+    }
+  }
+
+  /* ============ 保存処理 ============ */
+  function resetFormAfterSave() {
+    try {
+      if (newMenuInput) newMenuInput.value = '';
+      if (tasteInput) tasteInput.value = '';
+      if (arrangeCheckbox) arrangeCheckbox.checked = false;
+      currentPhotoData = null;
+      if (photoPreviewWrap) photoPreviewWrap.classList.remove('show');
+      if (photoPreviewImg) photoPreviewImg.src = '';
+      if (photoStatus) photoStatus.textContent = '';
+      if (cameraInput) cameraInput.value = '';
+      if (galleryInput) galleryInput.value = '';
+      if (menuSelect) menuSelect.value = '';
+    } catch (e) { /* 無視 */ }
+  }
+
+  function showSaveToast() {
+    try {
+      if (!saveToast) return;
+      saveToast.classList.add('show');
+      setTimeout(function () {
+        try { saveToast.classList.remove('show'); } catch (e) {}
+      }, 2200);
+    } catch (e) { /* 無視 */ }
+  }
+
+  if (btnSave) {
+    btnSave.addEventListener('click', function () {
+      try {
+        clearError();
+        var menuName = getCurrentMenuName();
+        if (!menuName) {
+          showError('メニュー名を入力または選択してください。');
+          return;
+        }
+        var recDate = (dateInput && dateInput.value) ? dateInput.value : todayStr();
+        var newRecord = {
+          id: 'r_' + Date.now() + '_' + Math.floor(Math.random() * 100000),
+          date: recDate,
+          mealType: currentMealMode,
+          menu: menuName,
+          taste: tasteInput ? tasteInput.value.trim() : '',
+          arrange: arrangeCheckbox ? !!arrangeCheckbox.checked : false,
+          photo: currentPhotoData || null,
+          savedAt: Date.now()
+        };
+        records.push(newRecord);
+        var ok = saveRecords();
+        renderMenuSelect();
+        renderHistory();
+        resetFormAfterSave();
+        updateFactCard();
+        if (ok) {
+          showSaveToast();
+          vibrate(30);
+        }
+      } catch (e) {
+        console.warn('保存処理でエラーが発生しました。', e);
+        showError('保存中にエラーが発生しました。もう一度お試しください。');
+      }
+    });
+  }
+
+  /* ============ 初期化 ============ */
+  function init() {
+    try {
+      records = loadRecords();
+      setMealMode('lunch');
+      renderMenuSelect();
+      renderHistory();
+      updateFactCard();
+    } catch (e) {
+      console.warn('初期化中にエラーが発生しました。', e);
+    }
+  }
+  init();
+
+  /* ============ PWA: Service Worker 登録 ============ */
+  try {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        try {
+          navigator.serviceWorker.register('./sw.js').catch(function (err) {
+            console.warn('Service Workerの登録に失敗しました（動作には影響しません）。', err);
+          });
+        } catch (e) {
+          console.warn('Service Worker登録処理でエラーが発生しました（動作には影響しません）。', e);
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('Service Worker対応チェックでエラーが発生しました（動作には影響しません）。', e);
+  }
+});
+</script>
+</body>
+</html>
